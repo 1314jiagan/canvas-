@@ -15,27 +15,46 @@
       canvas.width = document.documentElement.clientWidth;
 
       let ctx = canvas.getContext("2d");
-      ctx.fillStyle = "red";
+      ctx.fillStyle = "black";
       ctx.strokeStyle = "none";
+      ctx.lineWidth = 8;//线宽
+      ctx.lineCap = "round";//线转折处描成圆
+      function drawling(x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }//点到点之间描成线
       let patting = false;
-      canvas.onmousedown = () => {
-        patting = true;
-      };
-
-      canvas.onmousemove = (e) => {
-        if (patting === true) {
-          ctx.beginPath();
-          ctx.arc(e.clientX, e.clientY, 10, 0, 2 * Math.PI);
-          ctx.stroke();
-          ctx.fill();
-        } else {
-          console.log("nothing to do");
+      let last;
+      var isTouchDevice = "ontouchstart" in document.documentElement;
+      if (isTouchDevice) {
+        canvas.ontouchstart = (e) => {
+          let x = e.touches[0].clientX;
+          let y = e.touches[0].clientY;
+          last = [x, y];
         }
-      };
-
-      canvas.onmouseup = () => {
-        patting = false;
-      };
+        canvas.ontouchmove = (e) => {
+          let x = e.touches[0].clientX;
+          let y = e.touches[0].clientY;
+          drawling(last[0], last[1], x, y);
+          last = [x, y];
+        }
+      } else {
+        canvas.onmousedown = (e) => {
+          patting = true;
+          last = (e.clientX, e.clientY);
+        }
+        canvas.onmousemove = (e) => {
+          if (patting === true) {
+            drawling(last[0], last[1], e.clientX, e.clientY);
+            last = [e.clientX, e.clientY];
+          }
+        }
+        canvas.onmouseup = () => {
+          patting = false;
+        }
+      }
     </script>
   </body>
 </html>
